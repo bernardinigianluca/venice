@@ -1,6 +1,6 @@
 package com.client.rest;
 
-import java.util.Collections;
+import java.io.File;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,23 +13,59 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.client.file.GestioneFile;
+
 @SpringBootApplication
 public class RestDemoApplication implements CommandLineRunner {
 	
-//	public String msg = "";
-//	public String token;
-
 	public static void main(String[] args) {
 		SpringApplication.run(RestDemoApplication.class, args);
 	}
 
-//	@SuppressWarnings("static-access")
 	@Override
 	public void run(String... args) throws Exception {
 
 		String msg = "";
 		String token = "";
-		// Leggere il file di testo per prendere username e password
+		String[] config = new String[] {"urlLogin:https://api.wexplore.olivetti.com/dmes/login",
+										"urlGetTile:https://api.wexplore.olivetti.com/dmes/getDataTileFromAce",
+										"utente:perugia",
+										"password:HZe[A$fT7u22cy_v",
+										"ace:10|054|039",
+										"dataInizio:171022",
+										"orainizio:0000",
+										"dataFine:171022",
+										"orafine:0015",
+										"granularita:15",
+										"adjusment:true",
+										"colori:[\"P\",\"Ni\",\"Ns\",\"Tb\",\"Tc\",\"Gm\",\"Gf\",\"F1\",\"F2\",\"F3\",\"F4\",\"F5\",\"F6\",\"Vi\",\"Ve\",\"Vp\",\"Vr\"]"};
+	
+
+		// Creazione Direttorio e File configurazione
+		String dir = "c:\\venice";
+		String namefile = "config.cfg";
+		String pathfile = dir + "\\" + namefile;
+		
+		GestioneFile gf = new GestioneFile();
+		gf.createDir(dir);
+		File file = gf.createFile(pathfile);
+		
+		if(file.length()==0) {
+			//Scrive multiline sul file con PrintWriter
+			gf.fileWriteMultilinePrintWriter(file, config);
+		}
+		
+		// Leggere il file config.cfg per prendere tutti i parametri
+		try {
+			String[] copia1 = gf.cloneArray(gf.FileReader(file));
+		//String array[] = new gf.FileReader(file);
+		System.out.println(copia1[0]);
+		} catch (Exception e) {
+			System.out.println(e);
+			System.exit(0);
+		}
+		
+		
 
 		// fare la chiamata di autenticazione
 		RestTemplate restTemplate = new RestTemplate();
@@ -43,12 +79,14 @@ public class RestDemoApplication implements CommandLineRunner {
 			if (response.getStatusCode() == HttpStatus.OK) {
 				msg = "Utente autorizato";
 				System.out.println(msg);
-//				System.out.println("{\n" + "    \"message\": \"Authorized\"\n" + "}\n" + "");
 				
 				// Si tutto OK si prende il token per la seguente chiamata
 				token = response.getHeaders().get("X-Auth").toString();
+				System.out.println(token);
+				token = removeCh(token, token.length()-1);
+				token = removeCh(token,0);
 				System.out.println("token: " + token);
-
+				
 				// Si crea la seguente chiamata
 //				headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 				RestTemplate restTemplate1 = new RestTemplate();
@@ -56,7 +94,6 @@ public class RestDemoApplication implements CommandLineRunner {
 				headers1.setContentType(MediaType.APPLICATION_JSON);
 				headers1.set("X-Auth", token);
 				String resourceURL1 = "https://api.wexplore.olivetti.com/dmes/getDataTileFromAce";
-	////		String jsonGetData = ConvertJSONDataTileFromAce("perugia", "HZe[A$fT7u22cy_v");
 				String json1 = "{\n" + 
 								"\"ace\": \"10|054|039\",\n" + 
 								"\"data\": \"171022\",\n" + 
@@ -68,12 +105,9 @@ public class RestDemoApplication implements CommandLineRunner {
 				HttpEntity<String> entity1 = new HttpEntity<String>(json1, headers1);
 				
 				//Questa istruzione non funziona
-				System.out.println("hola");
 				ResponseEntity<String> response1 = restTemplate1.exchange(resourceURL1, HttpMethod.POST, entity1, String.class);
-				System.out.println(response1);
 				if (response1.getStatusCode() == HttpStatus.OK) {
-					System.out.println(response1);
-					System.out.println("hola2");
+					System.out.println(response1.getBody());
 				}
 			}
 			
@@ -92,17 +126,23 @@ public class RestDemoApplication implements CommandLineRunner {
 		}
 	}
 
-	public String ConvertJSONLogin(String username, String password) {
+	public static String ConvertJSONLogin(String username, String password) {
 		String json = "";
 		json = "{\n" + "\"username\":\"" + username + "\",\n" + "\"password\":\"" + password + "\"\n" + "}";
 		return json;
 	}
 	
-	public String ConvertJSONDataTileFromAce() {
+	public static String ConvertJSONDataTileFromAce() {
 		String json = "";
 		
 		return json;
 	}
+	
+	public static String removeCh (String s , int index) {
+		if ((index > s.length()-1) || (index < 0)) return null;
+		String c = s.substring(0,index) + s.substring(index+1 , s.length());
+		return c;
+		}
 	
 //	public String Response() {
 //		OkHttpClient client = new OkHttpClient();
