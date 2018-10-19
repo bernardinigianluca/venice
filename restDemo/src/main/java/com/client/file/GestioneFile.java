@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import com.client.rest.RestDemoApplication;
+
 public class GestioneFile {
 	
 	/*====================================================*/
@@ -59,35 +61,18 @@ public class GestioneFile {
 		pw.close();
 	}
 
-	
-	/*LeggereFile================================================*/
-	@SuppressWarnings("resource")
-	public String[] FileReader(File file) throws IOException {
+	/*LeggereFile e crea array arrDatiConfig*/
+	public void FileReader(File file) throws IOException {
 		
-		String[] array = new String[12];
-		
-//		FileReader fr = null;
-//		
-//		fr = new FileReader(file);
-//		
-//		char[] text = new char[1024];
-//		
-//		int size = fr.read(text);
-//		
-//		for(int i = 0; i < size; i++) {
-//			array[i]=text[i];
-//		}
-		
+		@SuppressWarnings("resource")
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		
 		String linea; int i = 0;
 		
 		while ((linea = reader.readLine()) != null){
-			array[i]=linea.substring(linea.indexOf(":")+1);
+			RestDemoApplication.arrDatiConfig[i]=linea.substring(linea.indexOf(":")+1);
 			i++;
 		}
-		
-		return array;
 	}
 	
 	public String[] cloneArray(String[] array) {
@@ -96,5 +81,34 @@ public class GestioneFile {
             newArray[i] = array[i];
         return newArray;
     }
+	
+	public void creareFileConfig() throws IOException {
+			
+		String[] config = new String[] {
+				"urlLogin:https://api.wexplore.olivetti.com/dmes/login",
+				"urlGetTile:https://api.wexplore.olivetti.com/dmes/getDataTileFromAce",
+				"username:perugia",
+				"password:HZe[A$fT7u22cy_v",
+				"ace:10|054|039",
+				"dataInizio:171022",
+				"orainizio:0000",
+				"dataFine:171023",
+				"orafine:0000",
+				"granularita:15",
+				"adjusment:true",
+				"colori:[\"P\",\"Ni\",\"Ns\",\"Tb\",\"Tc\",\"Gm\",\"Gf\",\"F1\",\"F2\",\"F3\",\"F4\",\"F5\",\"F6\",\"Vi\",\"Ve\",\"Vp\",\"Vr\"]"};
+		
+		
+		this.createDir(RestDemoApplication.dir);
+		RestDemoApplication.file = this.createFile(RestDemoApplication.pathfile);
+		if(RestDemoApplication.file.length()==0) {
+			this.fileWriteMultilinePrintWriter(RestDemoApplication.file, config);
+			System.out.println("Congratulazioni!!!\n"+
+								"La configurlazione del Venice\n"+
+								"ed andata a buon fine nella seguente direttori\n"+
+								"Direttori: " + RestDemoApplication.pathfile );
+			System.exit(0);
+		}
+	}
 
 }
