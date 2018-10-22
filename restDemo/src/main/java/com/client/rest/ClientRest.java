@@ -21,7 +21,7 @@ import com.client.file.GestioneFile;
 import com.client.file.GestioneFileJSON;
 
 @SpringBootApplication
-public class RestDemoApplication implements CommandLineRunner {
+public class ClientRest implements CommandLineRunner {
 	
 	public static String dir = "c:\\venice";
 	public static String namefile = "config.cfg";
@@ -30,7 +30,7 @@ public class RestDemoApplication implements CommandLineRunner {
 	public static String[] arrDatiConfig = new String[12];
 	
 	public static void main(String[] args) {
-		SpringApplication.run(RestDemoApplication.class, args);
+		SpringApplication.run(ClientRest.class, args);
 	}
 
 	@Override
@@ -70,6 +70,8 @@ public class RestDemoApplication implements CommandLineRunner {
 				
 				// Si tutto OK si prende il token per la seguente chiamata
 				token = response.getHeaders().get("X-Auth").toString();
+				
+				// il token si pulisce dei due caratteri [ ] de inizio e fine
 				token = removeCh(token, token.length()-1);
 				token = removeCh(token,0);
 				
