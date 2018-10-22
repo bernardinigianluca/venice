@@ -13,10 +13,23 @@ import com.client.rest.ClientRest;
 public class GestioneFile {
 	
 	/*====================================================*/
-	public File createFile(String path) throws IOException {
+	public File createFile(String path, String key) throws IOException {
 		File file = new File(path);
-		if(!file.exists()) {
-			file.createNewFile();
+		
+		switch (key) {
+		case "config":
+			if(!file.exists()) {
+				file.createNewFile();
+			}
+			break;
+		case "chiamata":
+			if(!file.exists()) {
+				file.createNewFile();
+			}else {
+				file.delete();
+				file.createNewFile();
+			}
+			break;
 		}
 		return file;
 	}
@@ -32,9 +45,9 @@ public class GestioneFile {
 	public void fileWriter(String filePath, String text) throws IOException {
 		
 		File file = new File(filePath);
-		
-		FileWriter fw = new FileWriter(file);
-		fw.write(text);
+
+		FileWriter fw = new FileWriter(file, true);
+		fw.write(text + "\n");
 		fw.close();
 	}
 	
@@ -99,14 +112,14 @@ public class GestioneFile {
 				"colori:[\"P\",\"Ni\",\"Ns\",\"Tb\",\"Tc\",\"Gm\",\"Gf\",\"F1\",\"F2\",\"F3\",\"F4\",\"F5\",\"F6\",\"Vi\",\"Ve\",\"Vp\",\"Vr\"]"};
 		
 		
-		this.createDir(ClientRest.dir);
-		ClientRest.file = this.createFile(ClientRest.pathfile);
+		this.createDir(ClientRest.DIR);
+		ClientRest.file = this.createFile(ClientRest.PATHFILECONFIG,"config");
 		if(ClientRest.file.length()==0) {
 			this.fileWriteMultilinePrintWriter(ClientRest.file, config);
 			System.out.println("Congratulazioni!!!\n"+
 								"La configurlazione del Venice\n"+
 								"ed andata a buon fine nella seguente direttori\n"+
-								"Direttori: " + ClientRest.pathfile );
+								"Direttori: " + ClientRest.PATHFILECONFIG );
 			System.exit(0);
 		}
 	}

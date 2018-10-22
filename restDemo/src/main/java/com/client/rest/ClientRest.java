@@ -3,8 +3,10 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -23,11 +25,16 @@ import com.client.file.GestioneFileJSON;
 @SpringBootApplication
 public class ClientRest implements CommandLineRunner {
 	
-	public static String dir = "c:\\venice";
-	public static String namefile = "config.cfg";
-	public static String pathfile = dir + "\\" + namefile;
+	public static final String DIR = "c:\\venice";
+	public static final String NAMEFILECONFIG = "config.cfg";
+	public static final String PATHFILECONFIG = DIR + "\\" + NAMEFILECONFIG;
 	public static File file = null;
 	public static String[] arrDatiConfig = new String[12];
+	public static String token = "";
+	public static Calendar DateTimeInizioProcesso = Calendar.getInstance();
+	public static Calendar DateTimeFineProcesso = Calendar.getInstance();
+	public static final long start  = System.currentTimeMillis();
+	
 	
 	public static void main(String[] args) {
 		SpringApplication.run(ClientRest.class, args);
@@ -35,9 +42,12 @@ public class ClientRest implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+		TimeZone.setDefault(TimeZone.getTimeZone("Europe/Rome"));
+		
+		DateTimeInizioProcesso.setTime(new Date());
+		
 
 		String msg = "";
-		String token = "";
 		GestioneFile gf = new GestioneFile();
 		
 		// Creo il file di configurazione
@@ -51,6 +61,7 @@ public class ClientRest implements CommandLineRunner {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
+		
 		try {
 			// Faccio login
 			// Url Login
@@ -72,29 +83,12 @@ public class ClientRest implements CommandLineRunner {
 				token = response.getHeaders().get("X-Auth").toString();
 				
 				// il token si pulisce dei due caratteri [ ] de inizio e fine
-				token = removeCh(token, token.length()-1);
-				token = removeCh(token,0);
+				token = Funzioni.removeCh(token, token.length()-1);
+				token = Funzioni.removeCh(token,0);
+							
+				// Aggiustare il UTC e fare le chiamate succesive
+				UTC.GestioneUTC();
 				
-				// Si crea la seguente chiamata
-				RestTemplate restTemplate1 = new RestTemplate();
-				HttpHeaders headers1 = new HttpHeaders();
-				headers1.setContentType(MediaType.APPLICATION_JSON);
-				headers1.set("X-Auth", token);
-				String resourceURL1 = arrDatiConfig[1];
-				
-				// Prima di fare la chiamata si deve aggiustare il UTC a -2 ore.
-				this.GestioneUTC();
-				
-				String json1 = GestioneFileJSON.ConvertJSONDataTileFromAce(
-						arrDatiConfig[4],arrDatiConfig[5],arrDatiConfig[6],
-						arrDatiConfig[9],arrDatiConfig[10],arrDatiConfig[11]);
-				HttpEntity<String> entity1 = new HttpEntity<String>(json1, headers1);
-				
-				//Questa istruzione non funziona
-				ResponseEntity<String> response1 = restTemplate1.exchange(resourceURL1, HttpMethod.POST, entity1, String.class);
-				if (response1.getStatusCode() == HttpStatus.OK) {
-					System.out.println(response1.getBody());
-				}
 			}
 			
 		} catch (Exception e) {
@@ -110,53 +104,5 @@ public class ClientRest implements CommandLineRunner {
 				break;
 			}
 		}
-	}
-
-	
-	public static String removeCh (String s , int index) {
-		if ((index > s.length()-1) || (index < 0)) return null;
-		String c = s.substring(0,index) + s.substring(index+1 , s.length());
-		return c;
-		}
-	
-	public void GestioneUTC() throws ParseException {
-		
-		// Data Ora Inzio
-		SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
-		Date data_ora_Inizio = sdf.parse(arrDatiConfig[5] + arrDatiConfig[6]);
-				
-		Calendar cal = Calendar.getInstance();
-	    cal.setTimeInMillis(data_ora_Inizio.getTime());
-
-	    cal.add(Calendar.HOUR, -2);
-	    Timestamp data_ora_Inizio_UTC = new Timestamp(cal.getTime().getTime());
-	    System.out.println(data_ora_Inizio_UTC);
-		
-	    // Data Ora fine
-		Date data_ora_Fine = sdf.parse(arrDatiConfig[7] + arrDatiConfig[8]);
-		
-		Calendar cal1 = Calendar.getInstance();
-	    cal1.setTimeInMillis(data_ora_Fine.getTime());
-
-	    cal1.add(Calendar.HOUR, -2);
-	    Timestamp data_ora_Fine_UTC = new Timestamp(cal1.getTime().getTime());
-	    System.out.println(data_ora_Fine_UTC);
-	    
-	    int granularita = Integer.parseInt(arrDatiConfig[9]);
-	    int i = 1;
-	    do {
-	    	
-	    	System.out.println("Chiamata: " + i);
-	    	cal.add(Calendar.MINUTE, granularita);
-			data_ora_Inizio_UTC = new Timestamp(cal.getTime().getTime());
-			i++;
-	    	
-	    } while(data_ora_Inizio_UTC.before(data_ora_Fine_UTC));
-		
-		
-		System.out.println(data_ora_Inizio_UTC);
-		
-		System.exit(0);
-	
 	}
 }
