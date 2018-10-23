@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import com.client.rest.ClientRest;
+import com.client.rest.RestDemoApplication;
 
 public class GestioneFile {
 	
@@ -83,7 +83,7 @@ public class GestioneFile {
 		String linea; int i = 0;
 		
 		while ((linea = reader.readLine()) != null){
-			ClientRest.arrDatiConfig[i]=linea.substring(linea.indexOf(":")+1);
+			RestDemoApplication.arrDatiConfig[i]=linea.substring(linea.indexOf(":")+1);
 			i++;
 		}
 	}
@@ -112,14 +112,14 @@ public class GestioneFile {
 				"colori:[\"P\",\"Ni\",\"Ns\",\"Tb\",\"Tc\",\"Gm\",\"Gf\",\"F1\",\"F2\",\"F3\",\"F4\",\"F5\",\"F6\",\"Vi\",\"Ve\",\"Vp\",\"Vr\"]"};
 		
 		
-		this.createDir(ClientRest.DIR);
-		ClientRest.file = this.createFile(ClientRest.PATHFILECONFIG,"config");
-		if(ClientRest.file.length()==0) {
-			this.fileWriteMultilinePrintWriter(ClientRest.file, config);
+		this.createDir(RestDemoApplication.DIR);
+		RestDemoApplication.file = this.createFile(RestDemoApplication.PATHFILECONFIG,"config");
+		if(RestDemoApplication.file.length()==0) {
+			this.fileWriteMultilinePrintWriter(RestDemoApplication.file, config);
 			System.out.println("Congratulazioni!!!\n"+
 								"La configurlazione del Venice\n"+
 								"ed andata a buon fine nella seguente direttori\n"+
-								"Direttori: " + ClientRest.PATHFILECONFIG );
+								"Direttori: " + RestDemoApplication.PATHFILECONFIG );
 			System.exit(0);
 		}
 	}

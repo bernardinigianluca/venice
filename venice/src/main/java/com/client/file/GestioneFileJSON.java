@@ -38,8 +38,7 @@ public class GestioneFileJSON {
 		String json = "";
 		
 		// proceso a colors
-		
-		//
+
 		json = "{\n" + 
 				"\"ace\": \"" + ace + "\",\n" + 
 				"\"data\": \"" + data + "\",\n" + 

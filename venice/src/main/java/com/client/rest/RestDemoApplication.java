@@ -1,4 +1,5 @@
 package com.client.rest;
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,7 +20,7 @@ import com.client.file.GestioneFile;
 import com.client.file.GestioneFileJSON;
 
 @SpringBootApplication
-public class ClientRest implements CommandLineRunner {
+public class RestDemoApplication implements CommandLineRunner{
 	
 	public static final String DIR = "c:\\venice";
 	public static final String NAMEFILECONFIG = "config.cfg";
@@ -30,10 +31,9 @@ public class ClientRest implements CommandLineRunner {
 	public static Calendar DateTimeInizioProcesso = Calendar.getInstance();
 	public static Calendar DateTimeFineProcesso = Calendar.getInstance();
 	public static final long start  = System.currentTimeMillis();
-	
-	
+
 	public static void main(String[] args) {
-		SpringApplication.run(ClientRest.class, args);
+		SpringApplication.run(RestDemoApplication.class, args);
 	}
 
 	@Override
@@ -42,7 +42,6 @@ public class ClientRest implements CommandLineRunner {
 		
 		DateTimeInizioProcesso.setTime(new Date());
 		
-
 		String msg = "";
 		GestioneFile gf = new GestioneFile();
 		
@@ -52,7 +51,7 @@ public class ClientRest implements CommandLineRunner {
 		// Leggere il file config.cfg per prendere tutti i parametri
 		// ed inserirgli nell arrDatiConfig
 		gf.FileReader(file);
-
+		
 		// fare la chiamata di autenticazione
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
@@ -81,7 +80,7 @@ public class ClientRest implements CommandLineRunner {
 				// il token si pulisce dei due caratteri [ ] de inizio e fine
 				token = Funzioni.removeCh(token, token.length()-1);
 				token = Funzioni.removeCh(token,0);
-							
+				
 				// Aggiustare il UTC e fare le chiamate succesive
 				UTC.GestioneUTC();
 				

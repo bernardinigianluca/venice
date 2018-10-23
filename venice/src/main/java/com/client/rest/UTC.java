@@ -21,7 +21,7 @@ public class UTC {
 
 		// Data Ora Inzio
 		SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
-		Date data_ora_Inizio = sdf.parse(ClientRest.arrDatiConfig[5] + ClientRest.arrDatiConfig[6]);
+		Date data_ora_Inizio = sdf.parse(RestDemoApplication.arrDatiConfig[5] + RestDemoApplication.arrDatiConfig[6]);
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(data_ora_Inizio.getTime());
@@ -31,7 +31,7 @@ public class UTC {
 		System.out.println(data_ora_Inizio_UTC);
 
 		// Data Ora fine
-		Date data_ora_Fine = sdf.parse(ClientRest.arrDatiConfig[7] + ClientRest.arrDatiConfig[8]);
+		Date data_ora_Fine = sdf.parse(RestDemoApplication.arrDatiConfig[7] + RestDemoApplication.arrDatiConfig[8]);
 
 		Calendar cal1 = Calendar.getInstance();
 		cal1.setTimeInMillis(data_ora_Fine.getTime());
@@ -40,24 +40,26 @@ public class UTC {
 		Timestamp data_ora_Fine_UTC = new Timestamp(cal1.getTime().getTime());
 		System.out.println(data_ora_Fine_UTC);
 
-		int granularita = Integer.parseInt(ClientRest.arrDatiConfig[9]);
+		int granularita = Integer.parseInt(RestDemoApplication.arrDatiConfig[9]);
 		int i = 1;
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("X-Auth", ClientRest.token);
-		String URL = ClientRest.arrDatiConfig[1];
+		headers.set("X-Auth", RestDemoApplication.token);
+		String URL = RestDemoApplication.arrDatiConfig[1];
+		
+		
 		
 		GestioneFile gf = new GestioneFile();
-		String ace = ClientRest.arrDatiConfig[4];
+		String ace = RestDemoApplication.arrDatiConfig[4];
 		ace = Funzioni.removeCh(ace, 6);
 		ace = Funzioni.removeCh(ace, 2);
-		String data = ClientRest.arrDatiConfig[5];
-		String ora = ClientRest.arrDatiConfig[6];
-		String pathDirChiamata = ClientRest.DIR + "\\Chiamata " + ace + "_" + data + ora;
-		String pathFileChiamata = pathDirChiamata + "\\Chiamata " + ace + "_" + data + ora + ".txt";
+		String data = RestDemoApplication.arrDatiConfig[5];
+		String ora = RestDemoApplication.arrDatiConfig[6];
+		String datafine = RestDemoApplication.arrDatiConfig[7];
+		String orafine = RestDemoApplication.arrDatiConfig[8];
+		String pathDirChiamata = RestDemoApplication.DIR + "\\Chiamata " + ace + "_" + data + ora + "_" + datafine + orafine;
 		gf.createDir(pathDirChiamata); 
-		gf.createFile(pathFileChiamata,"chiamata");
 		long totChiamate = ((cal1.getTimeInMillis() - cal.getTimeInMillis()))/(granularita*60*1000);
 		
 		do {
@@ -65,39 +67,40 @@ public class UTC {
 			System.out.println("Chiamata: " + i + " di " + totChiamate + " " + data_ora_Inizio_UTC);
 			//Qui si preparano i dati per il corpo della chiamata
 			String Body = GestioneFileJSON.ConvertJSONDataTileFromAce(
-					ClientRest.arrDatiConfig[4],ClientRest.arrDatiConfig[5],ClientRest.arrDatiConfig[6],
-					ClientRest.arrDatiConfig[9],ClientRest.arrDatiConfig[10],ClientRest.arrDatiConfig[11]);
-			 
+					RestDemoApplication.arrDatiConfig[4],RestDemoApplication.arrDatiConfig[5],RestDemoApplication.arrDatiConfig[6],
+					RestDemoApplication.arrDatiConfig[9],RestDemoApplication.arrDatiConfig[10],RestDemoApplication.arrDatiConfig[11]);
+			
             ResponseEntity<String> response = Chiamate.POST(URL, Body, headers);
 			if (response.getStatusCode() == HttpStatus.OK) {
-//				System.out.println(response.getStatusCode());
-				//Inserire i dati nel file
+
+				//Creare e Inserire i dati nel file
+				String pathFileChiamata = pathDirChiamata + "\\Chiamata " + ace + "_" + data + ora + ".txt";
+				gf.createFile(pathFileChiamata,"chiamata");
 				gf.fileWriter(pathFileChiamata, response.getBody());
-//				System.out.println(response.getBody());
 			}
 			
 			cal.add(Calendar.MINUTE, granularita);
 			data_ora_Inizio_UTC = new Timestamp(cal.getTime().getTime());
 			SimpleDateFormat df = new SimpleDateFormat ("yyMMdd");
-			ClientRest.arrDatiConfig[5] = df.format(data_ora_Inizio_UTC);
+			RestDemoApplication.arrDatiConfig[5] = df.format(data_ora_Inizio_UTC);
 			df = new SimpleDateFormat ("HHmm");
-			ClientRest.arrDatiConfig[6] = df.format(data_ora_Inizio_UTC);
+			RestDemoApplication.arrDatiConfig[6] = df.format(data_ora_Inizio_UTC);
+			data = RestDemoApplication.arrDatiConfig[5];
+			ora = RestDemoApplication.arrDatiConfig[6];
 			
 			i++;
 
 		} while (data_ora_Inizio_UTC.before(data_ora_Fine_UTC));
 		
-		SimpleDateFormat sdfOra = new SimpleDateFormat("HH:mm:ss.SSS");
-		SimpleDateFormat sdfDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		ClientRest.DateTimeFineProcesso.setTime(new Date());
+		SimpleDateFormat sdfOra = new SimpleDateFormat("HH:mm:ss");
+		SimpleDateFormat sdfDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		RestDemoApplication.DateTimeFineProcesso.setTime(new Date());
 		final long end  = System.currentTimeMillis();
-		System.out.println("[Inizio]          " + sdfDateTime.format(ClientRest.start));
+		System.out.println("[Inizio]          " + sdfDateTime.format(RestDemoApplication.start));
 		System.out.println("[Fine]            " + sdfDateTime.format(end));
-		long tempofinale = end-ClientRest.start;
+		long tempofinale = end-RestDemoApplication.start;
 		tempofinale = tempofinale - 3600000;
 		System.out.println("[Tempo trascorso] " + sdfOra.format(tempofinale));
-
-		System.exit(0);
 
 	}
 
