@@ -58,16 +58,17 @@ public class UTC {
 		String pathFileChiamata = pathDirChiamata + "\\Chiamata " + ace + "_" + data + ora + ".txt";
 		gf.createDir(pathDirChiamata); 
 		gf.createFile(pathFileChiamata,"chiamata");
+		long totChiamate = ((cal1.getTimeInMillis() - cal.getTimeInMillis()))/(granularita*60*1000);
 		
 		do {
 
-			System.out.println("Chiamata: " + i + " " + data_ora_Inizio_UTC);
+			System.out.println("Chiamata: " + i + " di " + totChiamate + " " + data_ora_Inizio_UTC);
 			//Qui si preparano i dati per il corpo della chiamata
 			String Body = GestioneFileJSON.ConvertJSONDataTileFromAce(
 					ClientRest.arrDatiConfig[4],ClientRest.arrDatiConfig[5],ClientRest.arrDatiConfig[6],
 					ClientRest.arrDatiConfig[9],ClientRest.arrDatiConfig[10],ClientRest.arrDatiConfig[11]);
-			
-			ResponseEntity<String> response = Chiamate.POST(URL, Body, headers);
+			 
+            ResponseEntity<String> response = Chiamate.POST(URL, Body, headers);
 			if (response.getStatusCode() == HttpStatus.OK) {
 //				System.out.println(response.getStatusCode());
 				//Inserire i dati nel file
@@ -77,7 +78,7 @@ public class UTC {
 			
 			cal.add(Calendar.MINUTE, granularita);
 			data_ora_Inizio_UTC = new Timestamp(cal.getTime().getTime());
-			SimpleDateFormat df = new SimpleDateFormat ("YYMMDD");
+			SimpleDateFormat df = new SimpleDateFormat ("yyMMdd");
 			ClientRest.arrDatiConfig[5] = df.format(data_ora_Inizio_UTC);
 			df = new SimpleDateFormat ("HHmm");
 			ClientRest.arrDatiConfig[6] = df.format(data_ora_Inizio_UTC);
